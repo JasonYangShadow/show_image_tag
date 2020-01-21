@@ -20,15 +20,17 @@ Docker Hub hosts many Docker Images, but sometimes it is a bit of hard to list a
    python main.py -r jasonyangshadow
    
    output:
-jasonyangshadow/ubuntu:latest
-   jasonyangshadow/cuda:ont
-   jasonyangshadow/porg:latest
-   jasonyangshadow/buildenv:0.3
-   jasonyangshadow/pyinstaller:v0.1
+   jasonyangshadow/ubuntu:latest  
+   jasonyangshadow/cuda:ont  
+   jasonyangshadow/porg:latest  
+   jasonyangshadow/buildenv:0.3  
+   jasonyangshadow/pyinstaller:v0.1  
    ```
-   2. show all images with all tags
+
+   2. show all images with all tags  
+
    ```
-python main.py -r jasonyangshadow --all
+    python main.py -r jasonyangshadow --all
    
    output:
    [{'namespace': 'jasonyangshadow', 'name': 'ubuntu', 'tags': [{'name': 'latest', 'size': 67201057, 'architecture': 'amd64', 'os': 'linux', 'last_updated': '2018-10-03T06:49:37.882614Z'}, {'name': 'java8', 'size': 175430362, 'architecture': 'amd64', 'os': 'linux', 'last_updated': '2019-07-22T07:28:52.086866Z'}, {'name': '16.04', 'size': 113737821, 'architecture': 'amd64', 'os': 'linux', 'last_updated': '2019-06-28T02:51:37.214321Z'}, {'name': 'test', 'size': 67221472, 'architecture': 'amd64', 'os': 'linux', 'last_updated': '2018-12-03T11:14:15.911344Z'}, {'name': '3', 'size': 73370947, 'architecture': 'amd64', 'os': 'linux', 'last_updated': '2018-05-20T12:51:08.937708Z'}], 'tag_count': 5}, {'namespace': 'jasonyangshadow', 'name': 'cuda', 'tags': [{'name': 'ont', 'size': 3129562143, 'architecture': 'amd64', 'os': 'linux', 'last_updated': '2019-04-18T17:47:58.470328Z'}], 'tag_count': 1}, {'namespace': 'jasonyangshadow', 'name': 'porg', 'tags': [{'name': 'latest', 'size': 219412169, 'architecture': 'amd64', 'os': 'linux', 'last_updated': '2017-11-02T07:16:09.055225Z'}, {'name': '2', 'size': 219412169, 'architecture': 'amd64', 'os': 'linux', 'last_updated': '2017-11-02T07:16:06.894337Z'}, {'name': '1', 'size': 126628782, 'architecture': 'amd64',
@@ -44,11 +46,11 @@ python main.py -r jasonyangshadow --all
       python main.py -r jasonyangshadow --thread
       
       output:
-      jasonyangshadow/ubuntu:latest
-      jasonyangshadow/cuda:ont
-      jasonyangshadow/porg:latest
-      jasonyangshadow/buildenv:0.3
-      jasonyangshadow/pyinstaller:v0.1
+      jasonyangshadow/ubuntu:latest  
+      jasonyangshadow/cuda:ont  
+      jasonyangshadow/porg:latest  
+      jasonyangshadow/buildenv:0.3  
+      jasonyangshadow/pyinstaller:v0.1  
       ```
 
    2. show images with all tags:
