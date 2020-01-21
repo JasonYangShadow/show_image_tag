@@ -1,7 +1,8 @@
 import requests
 import json
 import argparse
-import asyncio
+import logging
+import concurrent.futures
 
 url = 'https://registry.hub.docker.com/v2/repositories'
 #url_tag = 'https://registry.hub.docker.com/v2/repositories/biocontainers/samtools/tags'
@@ -12,59 +13,43 @@ class Base:
         self.__repo_url = '%s/%s/' %(url, repo)
         self.__worker_count = worker_count
 
-    async def __async_process(self, all_tags = False):
-        queue = asyncio.Queue()
-
+    def __async_process(self, all_tags = False):
         #worker
-        workers = []
-        for i in range(self.__worker_count):
-            worker = asyncio.create_task(self.__worker(queue, all_tags))
-            workers.append(worker)
-
-        #start looping images info
-        resp = requests.get(self.__repo_url)
-        if resp.status_code == 200:
-            json_content = resp.json()
-            if 'count' in json_content:
-                self.__count = json_content['count']
-            while 'results' in json_content and len(json_content['results']) > 0:
-                for item in json_content['results']:
-                    item_dict = {}
-                    item_dict['namespace'] = item['namespace']
-                    item_dict['name'] = item['name']
-                    queue.put_nowait(item_dict)
-                #loop for next page
-                if json_content['next'] is not None:
-                    resp = requests.get(json_content['next'])
-                    if resp.status_code == 200:
-                        json_content = resp.json()
+        logging.debug('prepare works with count: %d', self.__worker_count)
+        with concurrent.futures.ThreadPoolExecutor(max_workers = self.__worker_count) as executor:
+            #start looping images info
+            resp = requests.get(self.__repo_url)
+            if resp.status_code == 200:
+                json_content = resp.json()
+                if 'count' in json_content:
+                    self.__count = json_content['count']
+                    logging.debug('found %d images needed to be processed', self.__count)
+                while 'results' in json_content and len(json_content['results']) > 0:
+                    for item in json_content['results']:
+                        item_dict = {}
+                        item_dict['namespace'] = item['namespace']
+                        item_dict['name'] = item['name']
+                        executor.submit(self.__worker, item_dict, all_tags)
+                    #loop for next page
+                    if json_content['next'] is not None:
+                        resp = requests.get(json_content['next'])
+                        if resp.status_code == 200:
+                            json_content = resp.json()
+                        else:
+                            raise Exception('send request to %s failed with code %d' % (json_conent['next'], resp.status_code))
                     else:
-                        raise Exception('send request to %s failed with code %d' % (json_conent['next'], resp.status_code))
-                else:
-                    break
+                        break
+            else:
+                raise Exception('send request to %s failed with code %d' % (self.__repo_url, resp.status_code))
+
+    def __worker(self, image, all_tags = False):
+        logging.debug('working on processing tag info of image: %s', image['name'])
+        self.__add_tags(image, all_tags)
+        #mark task done
+        if all_tags:
+            print(image)
         else:
-            raise Exception('send request to %s failed with code %d' % (self.__repo_url, resp.status_code))
-
-        #wait until the queue is fully processed
-        await queue.join()
-
-        #cancel all workers
-        for worker in workers:
-            worker.cancel()
-        await asyncio.gather(*workers, return_exceptions = True)
-
-
-    async def __worker(self, queue, all_tags = False):
-        while True:
-            image = await queue.get()
-            if image is not None:
-                self.__add_tags(image, all_tags)
-                #mark task done
-                queue.task_done()
-                if all_tags:
-                    print(image)
-                else:
-                    print('%s/%s:%s' %(image['namespace'], image['name'], image['tags'][0]['name']))
+            print('%s/%s:%s' %(image['namespace'], image['name'], image['tags'][0]['name']))
 
     def __list_images(self):
         resp = requests.get(self.__repo_url)
@@ -139,14 +124,20 @@ class Base:
         return image_list
 
     def queue_run(self, all_tags = False):
-        asyncio.run(self.__async_process(all_tags))
+        self.__async_process(all_tags)
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-r', '--repo', help = 'target repository on Dockerhub', required = True)
     parser.add_argument('-a','--all', action = "store_true", default = False, help = 'print all tags of target images')
     parser.add_argument('-t','--thread', action = "store_true", default = False, help = 'use multiple threads to run')
+    parser.add_argument('-d','--debug', action = "store_true", default = False, help = 'output debug info')
     args = vars(parser.parse_args())
+    if args['debug']:
+        logging.basicConfig(level = logging.DEBUG)
+    else:
+        logging.basicConfig(level = logging.INFO)
+
     b = Base(args['repo'], 10)
     if args['thread']:
         b.queue_run(args['all'])
