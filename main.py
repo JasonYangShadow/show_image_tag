@@ -95,7 +95,7 @@ def main():
     else:
         if len(image_list) > 0:
             for image in image_list:
-                print('%s:%s' %(image['name'], image['tags'][0]['name']))
+                print('%s/%s:%s' %(image['namespace'], image['name'], image['tags'][0]['name']))
 
 if __name__ == "__main__":
     main()
