@@ -2,7 +2,7 @@ Docker Hub hosts many Docker Images, but sometimes it is a bit of hard to list a
 
 **This tool works for this.**
 
-1. Install Python3.7+, Python3-pip
+1. Install Python3+, Python3-pip
 
 2. pip3 install -r requirements.txt
 
