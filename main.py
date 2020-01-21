@@ -123,7 +123,7 @@ class Base:
                 self.__add_tags(image, all_tags)
         return image_list
 
-    def queue_run(self, all_tags = False):
+    def thread_run(self, all_tags = False):
         self.__async_process(all_tags)
 
 def main():
@@ -140,7 +140,7 @@ def main():
 
     b = Base(args['repo'], 10)
     if args['thread']:
-        b.queue_run(args['all'])
+        b.thread_run(args['all'])
     else:
         image_list = b.run(args['all'])
         if args['all']:
