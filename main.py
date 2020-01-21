@@ -12,7 +12,7 @@ class Base:
         self.__repo_url = '%s/%s/' %(url, repo)
         self.__worker_count = worker_count
 
-    def __async_process(self, all_tags = False):
+    async def __async_process(self, all_tags = False):
         queue = asyncio.Queue()
 
         #worker
@@ -40,6 +40,8 @@ class Base:
                         json_content = resp.json()
                     else:
                         raise Exception('send request to %s failed with code %d' % (json_conent['next'], resp.status_code))
+                else:
+                    break
         else:
             raise Exception('send request to %s failed with code %d' % (self.__repo_url, resp.status_code))
 
@@ -63,8 +65,6 @@ class Base:
                     print(image)
                 else:
                     print('%s/%s:%s' %(image['namespace'], image['name'], image['tags'][0]['name']))
-            else:
-                break
 
     def __list_images(self):
         resp = requests.get(self.__repo_url)
@@ -112,14 +112,14 @@ class Base:
                         tag_info['os'] = item['images'][0]['os']
                         tag_info['last_updated'] = item['last_updated']
                         image['tags'].append(tag_info)
-                        if json_content['next'] is not None:
-                            resp = requests.get(json_content['next'])
-                            if resp.status_code == 200:
-                                json_content = resp.json()
-                            else:
-                                raise Exception('send request to %s failed with code %d' % (json_content['next'], resp.status_code))
+                    if json_content['next'] is not None:
+                        resp = requests.get(json_content['next'])
+                        if resp.status_code == 200:
+                            json_content = resp.json()
                         else:
-                            break
+                            raise Exception('send request to %s failed with code %d' % (json_content['next'], resp.status_code))
+                    else:
+                        break
             else:
                 if 'results' in json_content and len(json_content['results']) > 0:
                     results = json_content['results']
