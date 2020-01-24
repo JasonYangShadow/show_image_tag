@@ -49,7 +49,7 @@ class Base:
         if all_tags:
             print(image)
         else:
-            print('%s/%s:%s' %(image['namespace'], image['name'], image['tags'][0]['name']))
+            print('%s/%s:%s %s' %(image['namespace'], image['name'], image['tags'][0]['name'], image['tags'][0]['digest']))
 
     def __list_images(self):
         resp = requests.get(self.__repo_url)
@@ -80,6 +80,7 @@ class Base:
 
     def __add_tags(self, image, all_tags = False):
         tag_url = '%s/%s/%s/tags' % (url, image['namespace'], image['name'])
+        logging.debug(tag_url)
         resp = requests.get(tag_url)
         if resp.status_code == 200:
             image['tags'] = []
@@ -115,7 +116,7 @@ class Base:
                     tag_info['architecture'] = results[0]['images'][0]['architecture']
                     tag_info['os'] = results[0]['images'][0]['os']
                     tag_info['last_updated'] = results[0]['last_updated']
-                    tag_info['digest'] = item['images'][0]['digest']
+                    tag_info['digest'] = results[0]['images'][0]['digest']
                     image['tags'].append(tag_info)
 
     def run(self, all_tags = False):
@@ -150,7 +151,7 @@ def main():
         else:
             if len(image_list) > 0:
                 for image in image_list:
-                    print('%s/%s:%s' %(image['namespace'], image['name'], image['tags'][0]['name']))
+                    print('%s/%s:%s %s' %(image['namespace'], image['name'], image['tags'][0]['name'], image['tags'][0]['digest']))
 
 if __name__ == "__main__":
     main()
