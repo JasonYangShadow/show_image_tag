@@ -96,6 +96,7 @@ class Base:
                         tag_info['architecture'] = item['images'][0]['architecture']
                         tag_info['os'] = item['images'][0]['os']
                         tag_info['last_updated'] = item['last_updated']
+                        tag_info['digest'] = item['images'][0]['digest']
                         image['tags'].append(tag_info)
                     if json_content['next'] is not None:
                         resp = requests.get(json_content['next'])
@@ -114,6 +115,7 @@ class Base:
                     tag_info['architecture'] = results[0]['images'][0]['architecture']
                     tag_info['os'] = results[0]['images'][0]['os']
                     tag_info['last_updated'] = results[0]['last_updated']
+                    tag_info['digest'] = item['images'][0]['digest']
                     image['tags'].append(tag_info)
 
     def run(self, all_tags = False):
